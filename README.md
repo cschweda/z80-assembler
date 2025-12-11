@@ -885,15 +885,51 @@ Source Code → Lexer → Parser (Pass 1) → Parser (Pass 2) → Code Generator
 
 ### Netlify (Recommended)
 
-The project is pre-configured for Netlify deployment:
+The project is pre-configured for Netlify deployment with optimized build settings and caching headers.
+
+#### Quick Setup
 
 1. **Connect Repository**: Link your Git repository to Netlify
-2. **Build Settings** (automatic from `netlify.toml`):
-   - Build command: `yarn build`
-   - Publish directory: `dist`
-3. **Deploy**: Netlify will automatically build and deploy
+2. **Automatic Configuration**: Netlify will automatically detect `netlify.toml` and use the configured settings
+3. **Deploy**: Netlify will automatically build and deploy on every push
 
-The `netlify.toml` file includes SPA routing configuration for client-side navigation.
+#### Build Configuration
+
+The `netlify.toml` file includes:
+
+- **Build Command**: `yarn build`
+- **Publish Directory**: `dist/`
+- **Node Version**: 22.21.1
+- **Yarn Version**: 1.22.22
+
+#### Features
+
+- **SPA Routing**: All routes redirect to `index.html` for client-side navigation
+- **Optimized Caching**:
+  - Static assets (`/assets/*`): 1 year cache with immutable flag
+  - ROM files (`/roms/*`): 1 year cache with immutable flag
+  - HTML files: No cache, must-revalidate for fresh content
+- **Security Headers**:
+  - `X-Frame-Options: DENY`
+  - `X-Content-Type-Options: nosniff`
+- **ROM Files**: Automatically copied to `dist/roms/` during build (binary, hex dump, and Intel HEX formats)
+
+#### Build Output
+
+When you run `yarn build`, you'll see:
+
+```
+============================================================
+✓ Build completed successfully!
+============================================================
+📁 Output directory: dist/
+📄 Static HTML files ready for deployment
+🚀 Preview options:
+   • yarn preview
+   • serve dist
+   • npx http-server dist
+============================================================
+```
 
 ### Manual Deployment
 
@@ -901,12 +937,24 @@ The `netlify.toml` file includes SPA routing configuration for client-side navig
 # Build the project
 yarn build
 
-# Deploy the dist/ folder to any static hosting:
+# The dist/ folder contains all static files ready for deployment:
+# - dist/index.html (main application)
+# - dist/assets/ (optimized JS and CSS)
+# - dist/roms/ (ROM files in multiple formats)
+
+# Deploy to any static hosting service:
 # - GitHub Pages
 # - Vercel
 # - AWS S3 + CloudFront
 # - Azure Static Web Apps
 # - Any web server
+
+# Preview locally:
+yarn preview
+# or
+serve dist
+# or
+npx http-server dist
 ```
 
 ## Testing
