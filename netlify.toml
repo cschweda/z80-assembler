@@ -1,9 +1,37 @@
 [build]
+  # Build command to run
   command = "yarn build"
+  # Directory containing the built static files (output from vite build)
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "22.21.1"
+  YARN_VERSION = "1.22.22"
+
+# SPA routing - redirect all routes to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Headers for static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for ROM files
+[[headers]]
+  for = "/roms/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/octet-stream"
+
+# Headers for HTML
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
 
