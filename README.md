@@ -1,5 +1,7 @@
 # TRS-80 Model III Z80 Assembler
 
+![Screenshot of the Z80 Assembler showing source code, memory dump, and symbol table](docs/images/screenshot.jpg)
+
 A complete, browser-based Z80 assembler implementation specifically targeting the **TRS-80 Model III** computer. Built with vanilla JavaScript and ES6 modules, this assembler converts Z80 assembly source code into executable bytecode that can be loaded into a TRS-80 Model III emulator.
 
 ## ⚠️ Important: This is an Assembler, Not an Emulator
