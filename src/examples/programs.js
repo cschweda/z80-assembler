@@ -501,6 +501,303 @@ HERE:   LD      HL, HERE            ; Should equal current address
         .END`,
     expectedBytes: null, // Variable due to $ usage
     expectedSymbols: { BASE: 0x1000, COMBO: 0x1100, DIFF: 0x800, DIV: 0x20, HERE: 0x420a, MULT: 0x40, OFFSET: 0x100, START: 0x4200 }
+  },
+  {
+    id: 'multiply',
+    name: 'Simple Multiply (3 × 4)',
+    description: 'Multiplies two numbers using repeated addition',
+    source: `; multiply.asm - Multiply 3 × 4 = 12 using repeated addition
+; Tests: Loops, ADD, DEC, conditional jumps
+; Expected size: ~18 bytes
+
+        .ORG    $4200
+
+START:  LD      A, 0        ; A = result (0)              (3E 00)
+        LD      B, 3        ; B = multiplier (3)          (06 03)
+        LD      C, 4        ; C = multiplicand (4)       (0E 04)
+
+LOOP:   ADD     A, C        ; A = A + C                  (81)
+        DEC     B           ; B--                         (05)
+        JR      NZ, LOOP    ; Loop while B != 0           (20 FB)
+        LD      (RESULT), A ; Store result (12)           (32 0A 42)
+        HALT                ;                             (76)
+
+RESULT: .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x00, 0x06, 0x03, 0x0E, 0x04, 0x81, 0x05, 0x20, 0xFC, 0x32, 0x0E, 0x42, 0x76, 0x00],
+    expectedSymbols: { LOOP: 0x4206, RESULT: 0x420E, START: 0x4200 }
+  },
+  {
+    id: 'strlen',
+    name: 'String Length Calculation',
+    description: 'Calculates the length of a null-terminated string',
+    source: `; strlen.asm - Calculate string length
+; Tests: String traversal, null checking, INC, CP
+; Expected size: ~20 bytes
+
+        .ORG    $4200
+
+START:  LD      HL, STRING  ; Point to string              (21 0A 42)
+        LD      B, 0        ; B = length counter          (06 00)
+
+LOOP:   LD      A, (HL)     ; Load character              (7E)
+        CP      0           ; Check for null terminator   (FE 00)
+        JR      Z, DONE     ; Done if null                (28 04)
+        INC     B           ; Increment length             (04)
+        INC     HL          ; Next character              (23)
+        JR      LOOP        ; Continue                    (18 F7)
+
+DONE:   LD      A, B        ; A = length                  (78)
+        LD      (LENGTH), A ; Store result                (32 19 42)
+        HALT                ;                             (76)
+
+STRING: .DB     "HELLO", 0
+LENGTH: .DB     0
+
+        .END`,
+    expectedBytes: [0x21, 0x13, 0x42, 0x06, 0x00, 0x7E, 0xFE, 0x00, 0x28, 0x04, 0x04, 0x23, 0x18, 0xF7, 0x78, 0x32, 0x19, 0x42, 0x76, 0x48, 0x45, 0x4C, 0x4C, 0x4F, 0x00, 0x00],
+    expectedSymbols: { DONE: 0x420E, LENGTH: 0x4219, LOOP: 0x4205, START: 0x4200, STRING: 0x4213 }
+  },
+  {
+    id: 'lookup',
+    name: 'Lookup Table',
+    description: 'Uses a lookup table to convert numbers to characters',
+    source: `; lookup.asm - Lookup table example
+; Tests: Table indexing, indirect addressing, LD A,(HL)
+; Expected size: ~22 bytes
+
+        .ORG    $4200
+
+START:  LD      A, 3        ; A = index (3)              (3E 03)
+        LD      HL, TABLE   ; HL = table address          (21 0A 42)
+        LD      D, 0        ; DE = A                      (16 00)
+        LD      E, A        ;                             (5F)
+        ADD     HL, DE      ; HL = TABLE + A               (19)
+        LD      A, (HL)     ; A = TABLE[A]                 (7E)
+        LD      (RESULT), A ; Store result                (32 11 42)
+        HALT                ;                             (76)
+
+TABLE:  .DB     '0', '1', '2', '3', '4', '5'
+RESULT: .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x03, 0x21, 0x0E, 0x42, 0x16, 0x00, 0x5F, 0x19, 0x7E, 0x32, 0x14, 0x42, 0x76, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x00],
+    expectedSymbols: { RESULT: 0x4214, START: 0x4200, TABLE: 0x420E }
+  },
+  {
+    id: 'daa',
+    name: 'Decimal Adjust (DAA)',
+    description: 'Tests the DAA instruction for BCD arithmetic',
+    source: `; daa.asm - Decimal Adjust Accumulator
+; Tests: DAA instruction, BCD arithmetic
+; Expected size: ~15 bytes
+
+        .ORG    $4200
+
+START:  LD      A, $19      ; A = 19 (BCD)                (3E 19)
+        ADD     A, $07      ; A = 19 + 7 = 20 (needs adjust) (C6 07)
+        DAA                 ; Adjust to BCD: A = 26       (27)
+        LD      (RESULT), A ; Store result                (32 0C 42)
+        LD      A, $45      ; A = 45 (BCD)                (3E 45)
+        ADD     A, $38      ; A = 45 + 38 = 7D (needs adjust) (C6 38)
+        DAA                 ; Adjust to BCD: A = 83       (27)
+        LD      (SUM), A    ; Store sum                   (32 0D 42)
+        HALT                ;                             (76)
+
+RESULT: .DB     0
+SUM:    .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x19, 0xC6, 0x07, 0x27, 0x32, 0x11, 0x42, 0x3E, 0x45, 0xC6, 0x38, 0x27, 0x32, 0x12, 0x42, 0x76, 0x00, 0x00],
+    expectedSymbols: { RESULT: 0x4211, START: 0x4200, SUM: 0x4212 }
+  },
+  {
+    id: 'negate',
+    name: 'Negate and Complement',
+    description: 'Tests NEG and CPL instructions',
+    source: `; negate.asm - Negate and complement operations
+; Tests: NEG, CPL, SCF, CCF
+; Expected size: ~20 bytes
+
+        .ORG    $4200
+
+START:  LD      A, 5        ; A = 5                       (3E 05)
+        NEG                 ; A = -5 = 251 (two's complement) (ED 44)
+        LD      (NEG1), A   ; Store -5                    (32 0E 42)
+        LD      A, $AA      ; A = 10101010                (3E AA)
+        CPL                 ; A = 01010101 = $55          (2F)
+        LD      (COMP), A   ; Store complement            (32 0F 42)
+        SCF                 ; Set carry flag              (37)
+        CCF                 ; Complement carry flag       (3F)
+        HALT                ;                             (76)
+
+NEG1:   .DB     0
+COMP:   .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x05, 0xED, 0x44, 0x32, 0x10, 0x42, 0x3E, 0xAA, 0x2F, 0x32, 0x11, 0x42, 0x37, 0x3F, 0x76, 0x00, 0x00],
+    expectedSymbols: { COMP: 0x4211, NEG1: 0x4210, START: 0x4200 }
+  },
+  {
+    id: 'stackops',
+    name: 'Stack Operations',
+    description: 'Advanced stack manipulation with multiple registers',
+    source: `; stackops.asm - Advanced stack operations
+; Tests: PUSH, POP with multiple register pairs
+; Expected size: ~18 bytes
+
+        .ORG    $4200
+
+STACK   .EQU    $7FFF
+
+START:  LD      SP, STACK   ; Initialize stack            (31 FF 7F)
+        LD      HL, $1234   ; HL = $1234                  (21 34 12)
+        LD      DE, $5678   ; DE = $5678                  (11 78 56)
+        PUSH    HL          ; Push HL                     (E5)
+        PUSH    DE          ; Push DE                     (D5)
+        POP     BC          ; Pop to BC (should be DE)    (C1)
+        POP     HL          ; Pop to HL (should be original HL) (E1)
+        LD      (SAVED), HL ; Store popped value          (22 12 42)
+        HALT                ;                             (76)
+
+SAVED:  .DW     0
+
+        .END`,
+    expectedBytes: [0x31, 0xFF, 0x7F, 0x21, 0x34, 0x12, 0x11, 0x78, 0x56, 0xE5, 0xD5, 0xC1, 0xE1, 0x22, 0x11, 0x42, 0x76, 0x00, 0x00],
+    expectedSymbols: { SAVED: 0x4211, STACK: 0x7FFF, START: 0x4200 }
+  },
+  {
+    id: 'portio',
+    name: 'Port I/O Operations',
+    description: 'Tests IN and OUT instructions with specific port numbers',
+    source: `; portio.asm - Port I/O operations
+; Tests: IN A,(n), OUT (n),A
+; Expected size: ~15 bytes
+
+        .ORG    $4200
+
+PORT1   .EQU    $F8         ; TRS-80 port
+PORT2   .EQU    $EC
+
+START:  IN      A, (PORT1)  ; Read from port $F8          (DB F8)
+        LD      B, A        ; Save in B                   (47)
+        IN      A, (PORT2)  ; Read from port $EC          (DB EC)
+        ADD     A, B        ; Add both values             (80)
+        OUT     (PORT1), A  ; Write to port $F8            (D3 F8)
+        LD      (RESULT), A ; Store result                (32 0C 42)
+        HALT                ;                             (76)
+
+RESULT: .DB     0
+
+        .END`,
+    expectedBytes: [0xDB, 0xF8, 0x47, 0xDB, 0xEC, 0x80, 0xD3, 0xF8, 0x32, 0x0C, 0x42, 0x76, 0x00],
+    expectedSymbols: { PORT1: 0xF8, PORT2: 0xEC, RESULT: 0x420C, START: 0x4200 }
+  },
+  {
+    id: 'restart',
+    name: 'Restart Instruction (RST)',
+    description: 'Tests RST instructions for interrupt-like behavior',
+    source: `; restart.asm - Restart instruction test
+; Tests: RST n (restart to vector addresses)
+; Expected size: ~10 bytes
+
+        .ORG    $4200
+
+START:  LD      A, $42      ; A = $42                     (3E 42)
+        RST     0           ; Restart to $0000            (C7)
+        HALT                ; Should not reach here       (76)
+
+SAVED:  .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x42, 0xC7, 0x76, 0x00],
+    expectedSymbols: { SAVED: 0x4204, START: 0x4200 }
+  },
+  {
+    id: 'exchange',
+    name: 'Register Exchange (EXX)',
+    description: 'Tests EXX instruction for alternate register set swapping',
+    source: `; exchange.asm - Register exchange operations
+; Tests: EXX (exchange alternate register sets)
+; Expected size: ~20 bytes
+
+        .ORG    $4200
+
+START:  LD      BC, $1234   ; BC = $1234                  (01 34 12)
+        LD      DE, $5678   ; DE = $5678                  (11 78 56)
+        LD      HL, $9ABC   ; HL = $9ABC                  (21 BC 9A)
+        EXX                 ; Exchange with alternate set (D9)
+        LD      BC, $0000   ; BC' = $0000                 (01 00 00)
+        LD      DE, $0000   ; DE' = $0000                 (11 00 00)
+        LD      HL, $0000   ; HL' = $0000                 (21 00 00)
+        EXX                 ; Exchange back                (D9)
+        LD      (RESULT), HL ; Store HL                   (22 11 42)
+        HALT                ;                             (76)
+
+RESULT: .DW     0
+
+        .END`,
+    expectedBytes: [0x01, 0x34, 0x12, 0x11, 0x78, 0x56, 0x21, 0xBC, 0x9A, 0xD9, 0x01, 0x00, 0x00, 0x11, 0x00, 0x00, 0x21, 0x00, 0x00, 0xD9, 0x22, 0x15, 0x42, 0x76, 0x00, 0x00],
+    expectedSymbols: { RESULT: 0x4215, START: 0x4200 }
+  },
+  {
+    id: 'divide',
+    name: 'Simple Divide (12 ÷ 3)',
+    description: 'Divides using repeated subtraction',
+    source: `; divide.asm - Divide 12 ÷ 3 = 4 using repeated subtraction
+; Tests: Loops, SUB, conditional jumps, counters
+; Expected size: ~20 bytes
+
+        .ORG    $4200
+
+START:  LD      A, 12       ; A = dividend (12)          (3E 0C)
+        LD      B, 3        ; B = divisor (3)             (06 03)
+        LD      C, 0        ; C = quotient (0)            (0E 00)
+
+LOOP:   SUB     B           ; A = A - B                  (90)
+        JR      C, DONE     ; Done if A < 0 (carry set)   (38 04)
+        INC     C           ; Increment quotient          (0C)
+        JR      LOOP        ; Continue                    (18 F9)
+
+DONE:   LD      A, C        ; A = quotient (4)           (79)
+        LD      (RESULT), A ; Store result                (32 0E 42)
+        HALT                ;                             (76)
+
+RESULT: .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x0C, 0x06, 0x03, 0x0E, 0x00, 0x90, 0x38, 0x03, 0x0C, 0x18, 0xFA, 0x79, 0x32, 0x11, 0x42, 0x76, 0x00],
+    expectedSymbols: { DONE: 0x420C, LOOP: 0x4206, RESULT: 0x4211, START: 0x4200 }
+  },
+  {
+    id: 'compare',
+    name: 'Compare Operations',
+    description: 'Tests CP instruction with various comparisons',
+    source: `; compare.asm - Compare operations
+; Tests: CP instruction, flag setting, conditional logic
+; Expected size: ~22 bytes
+
+        .ORG    $4200
+
+START:  LD      A, 10       ; A = 10                      (3E 0A)
+        CP      5           ; Compare A with 5            (FE 05)
+        JR      C, LESS     ; Jump if A < 5               (38 04)
+        JR      Z, EQUAL    ; Jump if A == 5              (28 04)
+        LD      B, 1        ; A > 5                       (06 01)
+        JR      DONE        ;                             (18 06)
+LESS:   LD      B, 0        ; A < 5                      (06 00)
+        JR      DONE        ;                             (18 02)
+EQUAL:  LD      B, 2        ; A == 5                     (06 02)
+DONE:   LD      A, B        ; A = result                 (78)
+        LD      (RESULT), A ; Store (should be 1)         (32 14 42)
+        HALT                ;                             (76)
+
+RESULT: .DB     0
+
+        .END`,
+    expectedBytes: [0x3E, 0x0A, 0xFE, 0x05, 0x38, 0x06, 0x28, 0x08, 0x06, 0x01, 0x18, 0x06, 0x06, 0x00, 0x18, 0x02, 0x06, 0x02, 0x78, 0x32, 0x17, 0x42, 0x76, 0x00],
+    expectedSymbols: { DONE: 0x4212, EQUAL: 0x4210, LESS: 0x420C, RESULT: 0x4217, START: 0x4200 }
   }
 ];
 
