@@ -56,3 +56,6 @@ temp/
 # Lock files (keep yarn.lock since we're using Yarn 1.22.22)
 package-lock.json
 pnpm-lock.yaml
+
+
+trs80emu.js
