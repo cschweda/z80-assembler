@@ -1,7 +1,7 @@
 {
     "name": "z80-assembler",
     "version": "1.0.0",
-    "description": "Z80 Assembler for TRS-80 Model III",
+    "description": "Z80 Assembler (compiler) for TRS-80 Model III - converts assembly source code to bytecode",
     "type": "module",
     "author": "Christopher Schweda",
     "license": "MIT",
