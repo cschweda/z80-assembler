@@ -3,6 +3,8 @@
     "version": "1.0.0",
     "description": "Z80 Assembler for TRS-80 Model III",
     "type": "module",
+    "author": "Christopher Schweda",
+    "license": "MIT",
     "scripts": {
         "dev": "vite",
         "build": "vite build",

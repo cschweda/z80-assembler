@@ -443,7 +443,7 @@ Requires ES6 module support (all modern browsers).
 
 ## License
 
-This project is provided as-is for educational and development purposes.
+MIT
 
 ---
 
