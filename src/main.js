@@ -1,22 +1,72 @@
+/**
+ * @fileoverview Main UI initialization and event handling
+ * 
+ * This is the main entry point for the browser-based Z80 assembler UI.
+ * It initializes the assembler, sets up DOM element references, wires up
+ * event handlers, and manages the interaction between the user interface
+ * and the assembler core.
+ * 
+ * Features:
+ * - Source code editor with keyboard shortcuts
+ * - One-click assembly with results display
+ * - TRS-80 DEBUG-style memory dump output
+ * - Symbol table display
+ * - Error and warning reporting
+ * - Example program loader
+ * - Status notifications
+ * 
+ * @module main
+ * @requires ./assembler
+ * @requires ./utils/formatter
+ * @requires ./ui/examples
+ */
+
 import { Z80Assembler } from './assembler.js';
 import { formatMemoryDump, formatSymbolTable, formatErrors, formatWarnings, formatBytes } from './utils/formatter.js';
 import { initExamplesDropdown, getExampleById } from './ui/examples.js';
 
-// Initialize assembler
+/**
+ * Main assembler instance
+ * Shared across all assembly operations
+ * @type {Z80Assembler}
+ */
 const assembler = new Z80Assembler();
 
-// Get DOM elements
-const sourceEditor = document.getElementById('source-editor');
-const outputDump = document.getElementById('output-dump');
-const symbolTable = document.getElementById('symbol-table');
-const errorsDisplay = document.getElementById('errors');
-const warningsDisplay = document.getElementById('warnings');
-const assembleBtn = document.getElementById('assemble-btn');
-const exampleSelect = document.getElementById('example-select');
-const statusDisplay = document.getElementById('status');
+/**
+ * DOM element references
+ * Cached at startup for performance
+ */
+const sourceEditor = document.getElementById('source-editor');     // Textarea for source code
+const outputDump = document.getElementById('output-dump');         // Memory dump display
+const symbolTable = document.getElementById('symbol-table');       // Symbol table display
+const errorsDisplay = document.getElementById('errors');           // Error messages
+const warningsDisplay = document.getElementById('warnings');       // Warning messages
+const assembleBtn = document.getElementById('assemble-btn');       // Assemble button
+const exampleSelect = document.getElementById('example-select');   // Example dropdown
+const statusDisplay = document.getElementById('status');           // Status bar
 
 /**
- * Assemble the current source code
+ * Assembles the current source code and updates the UI with results
+ * 
+ * Main assembly function that:
+ * 1. Validates source code is present
+ * 2. Invokes the assembler
+ * 3. Displays formatted results (bytecode, symbols, errors)
+ * 4. Updates status indicators
+ * 
+ * On success, displays:
+ * - TRS-80 DEBUG-style memory dump
+ * - Symbol table with addresses
+ * - Any warnings generated
+ * 
+ * On failure, displays:
+ * - Error messages with line/column numbers
+ * - Any warnings generated
+ * 
+ * @private
+ * @example
+ * // Called when user clicks "Assemble" button or presses Ctrl+Enter
+ * assemble();
  */
 function assemble() {
   const source = sourceEditor.value;
@@ -59,7 +109,19 @@ function assemble() {
 }
 
 /**
- * Update status display
+ * Updates the status display with a message and visual indicator
+ * 
+ * Changes the status bar text and applies appropriate CSS class for
+ * visual feedback (info, success, error).
+ * 
+ * @private
+ * @param {string} message - Status message to display
+ * @param {'info'|'success'|'error'} [type='info'] - Status type for styling
+ * 
+ * @example
+ * updateStatus('Assembling...', 'info');
+ * updateStatus('Success! Generated 10 bytes', 'success');
+ * updateStatus('Assembly failed: 2 error(s)', 'error');
  */
 function updateStatus(message, type = 'info') {
   statusDisplay.textContent = `Status: ${message}`;
@@ -67,26 +129,50 @@ function updateStatus(message, type = 'info') {
 }
 
 /**
- * Load example program into editor
+ * Loads an example program into the source editor
+ * 
+ * Populates the editor with the example's source code and clears
+ * all previous assembly outputs. Updates status to indicate which
+ * example was loaded.
+ * 
+ * @private
+ * @param {Object} example - Example program object
+ * @param {string} example.name - Name of the example
+ * @param {string} example.source - Z80 assembly source code
+ * 
+ * @example
+ * // Typically called by the example dropdown
+ * loadExample({
+ *   name: 'Add 2+2',
+ *   source: '.ORG $4200\nLD A, 2\n...'
+ * });
  */
 function loadExample(example) {
   sourceEditor.value = example.source;
   updateStatus(`Loaded: ${example.name}`, 'info');
   
-  // Clear previous outputs
+  // Clear previous assembly outputs
   outputDump.textContent = '';
   symbolTable.textContent = '';
   errorsDisplay.textContent = '';
   warningsDisplay.textContent = '';
 }
 
-// Initialize example dropdown
+/**
+ * UI Initialization
+ * Sets up event handlers and initial state
+ */
+
+// Initialize example program dropdown
 initExamplesDropdown(exampleSelect, loadExample);
 
-// Wire up assemble button
+// Wire up assemble button click handler
 assembleBtn.addEventListener('click', assemble);
 
-// Allow Ctrl+Enter to assemble
+/**
+ * Keyboard shortcut: Ctrl+Enter to assemble
+ * Allows quick assembly without clicking the button
+ */
 sourceEditor.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'Enter') {
     e.preventDefault();
@@ -94,6 +180,6 @@ sourceEditor.addEventListener('keydown', (e) => {
   }
 });
 
-// Initial status
+// Set initial status message
 updateStatus('Ready', 'info');
 

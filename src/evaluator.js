@@ -1,18 +1,101 @@
 /**
- * Expression evaluator for assembly expressions
- * Supports: +, -, *, /, $ (current address), parentheses, label references
+ * @fileoverview Expression evaluator for assembly-time arithmetic
+ * 
+ * Implements a recursive descent parser that evaluates arithmetic expressions
+ * in Z80 assembly source code. Supports standard operators, parentheses,
+ * label references, and the current address symbol ($).
+ * 
+ * Grammar (operator precedence):
+ * ```
+ * expression  := additive
+ * additive    := multiplicative (('+' | '-') multiplicative)*
+ * multiplicative := unary (('*' | '/') unary)*
+ * unary       := '-' unary | '+' unary | primary
+ * primary     := NUMBER | LABEL | '$' | '(' expression ')'
+ * ```
+ * 
+ * Supported operators:
+ * - Arithmetic: +, -, *, / (integer division)
+ * - Grouping: ( )
+ * - Special: $ (current program counter)
+ * - Labels: Resolved to their addresses
+ * 
+ * Expression examples:
+ * - `OFFSET + 10` - Add 10 to label address
+ * - `$ + 5` - Current address plus 5
+ * - `(100 * 2) + LABEL` - Complex expression
+ * - `VIDEO_RAM + (64 * row)` - Calculate screen position
+ * 
+ * @module evaluator
  */
 
+/**
+ * @typedef {Object} ParseResult
+ * @property {number} value - The evaluated numeric value
+ * @property {number} pos - Position in token array after parsing
+ */
+
+/**
+ * Expression evaluator class
+ * 
+ * Evaluates arithmetic expressions using recursive descent parsing with
+ * proper operator precedence. Resolves label references and special
+ * symbols like $ (current address) before evaluation.
+ * 
+ * The evaluator is stateful, maintaining references to:
+ * - Symbol table (for label lookups)
+ * - Current address (for $ substitution)
+ * 
+ * @class
+ * @example
+ * const evaluator = new ExpressionEvaluator(symbolTable, 0x4200);
+ * const tokens = [{type: 'NUMBER', value: 10}, ...];
+ * const result = evaluator.evaluate(tokens);  // Returns numeric value
+ */
 export class ExpressionEvaluator {
+  /**
+   * Creates a new expression evaluator
+   * 
+   * @param {Object.<string, {address: number}>} symbolTable - Symbol table for label lookups
+   * @param {number} currentAddress - Current assembly address (for $ substitution)
+   */
   constructor(symbolTable, currentAddress) {
+    /** @type {Object.<string, {address: number}>} */
     this.symbolTable = symbolTable;
+    
+    /** @type {number} */
     this.currentAddress = currentAddress;
   }
 
   /**
-   * Evaluate an expression from tokens
-   * @param {Array} tokens - Array of tokens representing the expression
-   * @returns {number} Evaluated numeric value
+   * Evaluates an expression from an array of tokens
+   * 
+   * Main entry point for expression evaluation. Preprocesses tokens to:
+   * 1. Remove whitespace and comments
+   * 2. Substitute $ with current address
+   * 3. Resolve label references to addresses
+   * 
+   * Then parses the processed tokens using recursive descent.
+   * 
+   * @param {Array<Object>} tokens - Array of tokens representing the expression
+   * @returns {number} Evaluated numeric value (integer)
+   * @throws {Error} If expression is empty, has syntax errors, or references undefined symbols
+   * 
+   * @example
+   * // Simple addition
+   * evaluate([
+   *   {type: 'NUMBER', value: 10},
+   *   {type: 'OPERATOR', value: '+'},
+   *   {type: 'NUMBER', value: 5}
+   * ]);  // Returns: 15
+   * 
+   * @example
+   * // Label reference
+   * evaluate([
+   *   {type: 'LABEL', value: 'START'},
+   *   {type: 'OPERATOR', value: '+'},
+   *   {type: 'NUMBER', value: 10}
+   * ]);  // Returns: (address of START) + 10
    */
   evaluate(tokens) {
     if (!tokens || tokens.length === 0) {
@@ -30,6 +113,25 @@ export class ExpressionEvaluator {
     return this.parseExpression(processed, 0).value;
   }
 
+  /**
+   * Preprocesses tokens before evaluation
+   * 
+   * Transforms tokens by:
+   * 1. Removing whitespace, newlines, and comments
+   * 2. Substituting $ with the current address value
+   * 3. Resolving label references to their numeric addresses
+   * 
+   * This simplifies the parser by ensuring all operands are numbers.
+   * 
+   * @private
+   * @param {Array<Object>} tokens - Raw token array
+   * @returns {Array<Object>} Processed tokens with $ and labels resolved
+   * @throws {Error} If an undefined symbol is referenced
+   * 
+   * @example
+   * // Input:  [{type: 'LABEL', value: 'START'}, {type: 'OPERATOR', value: '$'}]
+   * // Output: [{type: 'NUMBER', value: 0x4200}, {type: 'NUMBER', value: 0x4205}]
+   */
   preprocess(tokens) {
     const result = [];
     for (let i = 0; i < tokens.length; i++) {
@@ -40,7 +142,7 @@ export class ExpressionEvaluator {
         continue;
       }
 
-      // Handle $ (current address)
+      // Handle $ (current address) - substitute with numeric value
       if (token.type === 'OPERATOR' && token.value === '$') {
         result.push({
           type: 'NUMBER',
@@ -51,7 +153,7 @@ export class ExpressionEvaluator {
         continue;
       }
 
-      // Handle label references
+      // Handle label references - look up in symbol table
       if (token.type === 'LABEL') {
         const symbol = this.symbolTable[token.value];
         if (symbol === undefined) {
@@ -66,15 +168,44 @@ export class ExpressionEvaluator {
         continue;
       }
 
+      // Keep all other tokens as-is
       result.push(token);
     }
     return result;
   }
 
+  /**
+   * Parses a complete expression
+   * 
+   * Entry point for recursive descent parsing. Delegates to
+   * parseAdditive which handles the lowest precedence operators.
+   * 
+   * @private
+   * @param {Array<Object>} tokens - Preprocessed token array
+   * @param {number} start - Starting position in token array
+   * @returns {ParseResult} Parsed value and final position
+   */
   parseExpression(tokens, start) {
     return this.parseAdditive(tokens, start);
   }
 
+  /**
+   * Parses additive expressions (+ and -)
+   * 
+   * Handles addition and subtraction with left-to-right associativity.
+   * Lowest precedence level in the grammar.
+   * 
+   * Grammar: additive := multiplicative (('+' | '-') multiplicative)*
+   * 
+   * @private
+   * @param {Array<Object>} tokens - Token array
+   * @param {number} start - Starting position
+   * @returns {ParseResult} Parsed value and final position
+   * 
+   * @example
+   * // Parses: 10 + 20 - 5
+   * // Result: {value: 25, pos: 5}
+   */
   parseAdditive(tokens, start) {
     let left = this.parseMultiplicative(tokens, start);
     let pos = left.pos;
@@ -98,6 +229,25 @@ export class ExpressionEvaluator {
     return { value: left.value, pos };
   }
 
+  /**
+   * Parses multiplicative expressions (* and /)
+   * 
+   * Handles multiplication and division with left-to-right associativity.
+   * Higher precedence than addition/subtraction.
+   * Division is integer division (truncates toward zero).
+   * 
+   * Grammar: multiplicative := unary (('*' | '/') unary)*
+   * 
+   * @private
+   * @param {Array<Object>} tokens - Token array
+   * @param {number} start - Starting position
+   * @returns {ParseResult} Parsed value and final position
+   * @throws {Error} If division by zero is attempted
+   * 
+   * @example
+   * // Parses: 10 * 3 / 2
+   * // Result: {value: 15, pos: 5}
+   */
   parseMultiplicative(tokens, start) {
     let left = this.parseUnary(tokens, start);
     let pos = left.pos;
@@ -110,6 +260,7 @@ export class ExpressionEvaluator {
         if (op === '*') {
           left.value = left.value * right.value;
         } else {
+          // Integer division with zero check
           if (right.value === 0) {
             throw new Error(`Division by zero at line ${tokens[pos].line}`);
           }
@@ -124,6 +275,30 @@ export class ExpressionEvaluator {
     return { value: left.value, pos };
   }
 
+  /**
+   * Parses unary expressions and primary values
+   * 
+   * Handles:
+   * - Unary minus: -expr
+   * - Unary plus: +expr (no-op)
+   * - Parenthesized expressions: (expr)
+   * - Primary values: numbers
+   * 
+   * Highest precedence level in the grammar.
+   * 
+   * Grammar: unary := ('-' | '+') unary | primary
+   *         primary := NUMBER | '(' expression ')'
+   * 
+   * @private
+   * @param {Array<Object>} tokens - Token array
+   * @param {number} start - Starting position
+   * @returns {ParseResult} Parsed value and final position
+   * @throws {Error} If unexpected token or unmatched parenthesis
+   * 
+   * @example
+   * // Parses: -(10 + 5)
+   * // Result: {value: -15, pos: 5}
+   */
   parseUnary(tokens, start) {
     if (start >= tokens.length) {
       throw new Error('Unexpected end of expression');
