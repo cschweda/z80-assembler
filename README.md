@@ -644,40 +644,40 @@ Requires ES6 module support (all modern browsers).
 
 ### Z80 Processor Documentation
 
-- **[Z80 CPU User Manual](http://www.zilog.com/docs/z80/um0080.pdf)** - Official Zilog Z80 instruction set reference (PDF)
-- **[Z80 Instruction Set](https://clrhome.org/table/)** - Interactive instruction set table with opcodes
-- **[Z80 Heaven](http://z80-heaven.wikidot.com/)** - Community wiki with tutorials and programming guides
-- **[Z80 Opcode Reference](https://www.z80.info/z80oplist.txt)** - Complete opcode listing with timing
-- **[Z80.info](https://www.z80.info/)** - Comprehensive Z80 technical information and history
+- <a href="https://www.zilog.com/docs/z80/um0080.pdf" target="_blank"><strong>Z80 CPU User Manual</strong></a> - Official Zilog Z80 instruction set reference (PDF)
+- <a href="https://clrhome.org/table/" target="_blank"><strong>Z80 Instruction Set</strong></a> - Interactive instruction set table with opcodes
+- <a href="http://z80-heaven.wikidot.com/" target="_blank"><strong>Z80 Heaven</strong></a> - Community wiki with tutorials and programming guides
+- <a href="https://wikiti.brandonw.net/index.php?title=Z80_Instruction_Set" target="_blank"><strong>Z80 Instruction Set (WikiTI)</strong></a> - Complete instruction reference with timing
+- <a href="http://www.z80.info/zip/z80cpu_um.pdf" target="_blank"><strong>Z80 Family CPU User Manual</strong></a> - Alternative PDF manual
 
 ### TRS-80 Model III Documentation
 
-- **[TRS-80 Model III Technical Reference Manual](http://www.trs-80.com/wordpress/zaps-patches-pokes-tips/downloads/#ref)** - Official hardware documentation
-- **[TRS-80.com](http://www.trs-80.com/)** - Comprehensive TRS-80 resource site with manuals, software, and history
-- **[TRS-80 Model III Service Manual](http://www.classiccmp.org/dunfield/trs80/m3serv.pdf)** - Hardware specifications and schematics (PDF)
-- **[TRS-80 Revived](http://www.trs80.nl/)** - Dutch TRS-80 enthusiast site with technical details
-- **[Tim Mann's TRS-80 Pages](http://www.tim-mann.org/trs80.html)** - Emulators, documentation, and utilities
+- <a href="http://www.trs-80.com/wordpress/zaps-patches-pokes-tips/downloads/" target="_blank"><strong>TRS-80 Downloads</strong></a> - Official manuals and documentation
+- <a href="http://www.trs-80.com/" target="_blank"><strong>TRS-80.com</strong></a> - Comprehensive TRS-80 resource site with manuals, software, and history
+- <a href="http://www.trs-80.org/trs-80-model-iii/" target="_blank"><strong>TRS-80 Model III Overview</strong></a> - Hardware specifications and history
+- <a href="https://trs80.nl/" target="_blank"><strong>TRS-80 Revived</strong></a> - Dutch TRS-80 enthusiast site with technical details
+- <a href="https://www.tim-mann.org/trs80.html" target="_blank"><strong>Tim Mann's TRS-80 Pages</strong></a> - Emulators, documentation, and utilities
 
 ### TRS-80 Model III + Z80 Integration
 
-- **[TRS-80 Model III Memory Map](http://www.trs-80.com/wordpress/tips/model-3-memory-map/)** - Detailed memory organization
-- **[Programming the TRS-80 Model III](http://www.classiccmp.org/cpmarchives/trs80/mirrors/trs-80.org/early/www.trs-80.org/model3.htm)** - Assembly programming guides
-- **[TRS-80 Assembly Language](https://archive.org/details/TRS-80_Assembly_Language_Programming_1981_Radio_Shack)** - Classic assembly programming book (Internet Archive)
-- **[TRS-80 I/O Port Map](http://www.trs-80.com/wordpress/tips/model-3-io-port-summary/)** - Hardware I/O port addresses
-- **[Video Display Memory Layout](http://www.trs-80.com/wordpress/tips/video-memory-map/)** - Character display RAM organization
+- <a href="http://www.trs-80.com/wordpress/tips/model-3-memory-map/" target="_blank"><strong>TRS-80 Model III Memory Map</strong></a> - Detailed memory organization
+- <a href="http://www.trs-80.org/model-iii-basic/" target="_blank"><strong>TRS-80 Model III BASIC</strong></a> - Programming guides and resources
+- <a href="https://archive.org/details/TRS-80_Assembly_Language_Programming_1981_Radio_Shack" target="_blank"><strong>TRS-80 Assembly Language</strong></a> - Classic assembly programming book (Internet Archive)
+- <a href="http://www.trs-80.com/wordpress/tips/model-3-io-port-summary/" target="_blank"><strong>TRS-80 I/O Port Map</strong></a> - Hardware I/O port addresses
+- <a href="http://www.trs-80.com/wordpress/tips/video-memory-map/" target="_blank"><strong>Video Display Memory Layout</strong></a> - Character display RAM organization
 
 ### Online Communities
 
-- **[VCF Forums - TRS-80](https://forum.vcfed.org/index.php?forums/tandy-trs-80.45/)** - Vintage Computer Federation discussion
-- **[TRS-80 Discord Server](https://discord.gg/gVU5TGH)** - Active community for TRS-80 enthusiasts
-- **[r/trs80](https://www.reddit.com/r/trs80/)** - TRS-80 subreddit
-- **[Z80 Assembly on Stack Overflow](https://stackoverflow.com/questions/tagged/z80)** - Programming Q&A
+- <a href="https://forum.vcfed.org/index.php?forums/tandy-radio-shack.7/" target="_blank"><strong>VCF Forums - Tandy/Radio Shack</strong></a> - Vintage Computer Federation discussion
+- <a href="https://www.facebook.com/groups/2359462640/" target="_blank"><strong>TRS-80 Facebook Group</strong></a> - Active community for TRS-80 enthusiasts
+- <a href="https://www.reddit.com/r/trs80/" target="_blank"><strong>r/trs80</strong></a> - TRS-80 subreddit
+- <a href="https://stackoverflow.com/questions/tagged/z80" target="_blank"><strong>Z80 Assembly on Stack Overflow</strong></a> - Programming Q&A
 
 ### Emulators & Development Tools
 
-- **[trs80gp](http://48k.ca/trs80gp.html)** - Excellent TRS-80 Model III emulator (Windows/Linux/macOS)
-- **[SDLTRS](https://gitlab.com/jengun/sdltrs)** - Open-source TRS-80 emulator
-- **[z80asm](https://github.com/z88dk/z88dk)** - Z88DK cross-platform Z80 development kit
+- <a href="http://48k.ca/trs80gp.html" target="_blank"><strong>trs80gp</strong></a> - Excellent TRS-80 Model III emulator (Windows/Linux/macOS)
+- <a href="https://gitlab.com/jengun/sdltrs" target="_blank"><strong>SDLTRS</strong></a> - Open-source TRS-80 emulator
+- <a href="https://github.com/z88dk/z88dk" target="_blank"><strong>z88dk</strong></a> - Z88DK cross-platform Z80 development kit
 
 ## License
 
