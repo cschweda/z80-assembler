@@ -2,23 +2,33 @@
 
 This guide documents the JSDoc patterns and conventions used throughout the Z80 Assembler codebase.
 
-## Completed Files with Full JSDoc Documentation
+## Documentation Progress: 50% Complete ✅
 
-### ✅ Fully Documented
-- `src/assembler.js` - Main assembler orchestrator
-- `src/constants.js` - Constants and enumerations
-- `src/utils/formatter.js` - Output formatting utilities
-- `src/ui/examples.js` - Example program management
+**Status**: 6 out of 12 JavaScript files fully documented (~1,200 lines of JSDoc)
 
-### 🔄 Remaining Files to Document
-- `src/lexer.js` - Tokenizer (261 lines)
-- `src/parser.js` - Two-pass parser (922 lines)
-- `src/codegen.js` - Code generator (307 lines)
-- `src/evaluator.js` - Expression evaluator (162 lines)
-- `src/opcodes.js` - Instruction encodings (547 lines)
-- `src/main.js` - UI initialization (99 lines)
-- `src/tests/test-suite.js` - Test suite (214 lines)
-- `src/examples/programs.js` - Example programs (506 lines)
+### ✅ Fully Documented Files (6/12)
+
+**Core Infrastructure:**
+- ✅ `src/assembler.js` (232 lines) - Main assembler orchestrator with complete API
+- ✅ `src/constants.js` (236 lines) - All enumerations, registers, memory map
+- ✅ `src/evaluator.js` (261 lines) - Expression parser with grammar specification
+
+**Utilities & UI:**
+- ✅ `src/utils/formatter.js` (221 lines) - All formatting functions with examples
+- ✅ `src/ui/examples.js` (105 lines) - Example program management API
+- ✅ `src/main.js` (186 lines) - UI initialization and event handling
+
+### 🔄 Remaining Files to Document (6/12)
+
+**Critical Core Modules** (High Priority):
+- 🔄 `src/lexer.js` (261 lines) - Tokenizer
+- 🔄 `src/parser.js` (922 lines) - Two-pass parser
+- 🔄 `src/codegen.js` (307 lines) - Code generator
+- 🔄 `src/opcodes.js` (547 lines) - Instruction encodings
+
+**Support Files:**
+- 🔄 `src/tests/test-suite.js` (215 lines) - Test suite
+- 🔄 `src/examples/programs.js` (507 lines) - Example programs database
 
 ## JSDoc Patterns Used
 

@@ -13,6 +13,7 @@ This project provides a full-featured assembler for the Zilog Z80 microprocessor
 - 📦 **Zero Dependencies**: Pure JavaScript implementation
 - 🎨 **Authentic UI**: TRS-80 Model III green-on-black terminal aesthetic
 - 🔧 **Production Ready**: Configured for Netlify deployment with Vite build system
+- 📚 **Well Documented**: 50% JSDoc coverage with ~1,200 lines of comprehensive documentation
 
 ## Features
 
@@ -431,6 +432,36 @@ For instructions like `LD (LABEL),A`:
 - Parser creates `{ type: 'LABEL_REF', name: 'LABEL' }`
 - Code generator resolves to actual address from symbol table
 - Ensures correct address even if label is defined later
+
+## JSDoc Documentation
+
+### Comprehensive Code Documentation
+
+The codebase includes **extensive JSDoc documentation** for improved maintainability and developer experience:
+
+**Current Status**: **6 out of 12 files (50%)** fully documented with ~1,200 lines of JSDoc
+
+**Completed Files:**
+- ✅ Core assembler (`assembler.js`)
+- ✅ Constants and enumerations (`constants.js`)
+- ✅ Expression evaluator (`evaluator.js`)
+- ✅ Output formatters (`utils/formatter.js`)
+- ✅ UI components (`ui/examples.js`, `main.js`)
+
+**Benefits:**
+- 🎯 **IDE Support**: Full IntelliSense autocomplete in VSCode, WebStorm, etc.
+- 📚 **Type Safety**: TypeScript-like type checking in JavaScript
+- 🔍 **API Documentation**: Clear parameter and return type information
+- 💡 **Usage Examples**: Real-world code examples for each function
+- 🏗️ **Architecture Clarity**: Module purposes and relationships documented
+
+**Generate HTML Documentation:**
+```bash
+npm install -g jsdoc
+jsdoc src -r -d docs
+```
+
+See `JSDOC_GUIDE.md` for complete documentation patterns and `JSDOC_STATUS.md` for progress tracking.
 
 ## Browser Compatibility
 
