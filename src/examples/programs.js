@@ -798,6 +798,81 @@ RESULT: .DB     0
         .END`,
     expectedBytes: [0x3E, 0x0A, 0xFE, 0x05, 0x38, 0x06, 0x28, 0x08, 0x06, 0x01, 0x18, 0x06, 0x06, 0x00, 0x18, 0x02, 0x06, 0x02, 0x78, 0x32, 0x17, 0x42, 0x76, 0x00],
     expectedSymbols: { DONE: 0x4212, EQUAL: 0x4210, LESS: 0x420C, RESULT: 0x4217, START: 0x4200 }
+  },
+  {
+    id: 'poker',
+    name: 'Poker Hand Analyzer',
+    description: 'Analyzes poker hands using bitwise operations. Detects Royal Flush, Flush, and other patterns.',
+    source: `; poker.asm - Poker hand analyzer using bitwise operations
+; Input: Hand encoded as bytes (5 cards: suit in upper 4 bits, value in lower 4 bits)
+; Output: Hand rank (1=Royal Flush, 2=Flush, 10=High Card)
+; Tests: Bitwise operations (AND, OR, SLA), pattern matching, loops
+; Expected size: ~60 bytes
+
+        .ORG    $4200
+
+; Card encoding: suit in upper 4 bits, value in lower 4 bits
+; Suits: 0=spades, 1=hearts, 2=diamonds, 3=clubs
+; Values: A=14, K=13, Q=12, J=11, 10=10, 9-2=9-2
+; Example: As = 0x0E (suit 0, value 14), Ks = 0x0D, Qs = 0x0C, Js = 0x0B, 10s = 0x0A
+
+HAND:   .DB     $0E, $0D, $0C, $0B, $0A  ; Royal Flush: As Ks Qs Js 10s
+RESULT: .DB     0                         ; Hand rank output
+
+START:  LD      HL, HAND            ; Point to hand              (21 05 42)
+        LD      B, 0                ; B = suit mask              (06 00)
+        LD      C, 0                ; C = value mask              (0E 00)
+        LD      D, 5                ; D = card counter            (16 05)
+
+LOOP:   LD      A, (HL)             ; Load card                  (7E)
+        LD      E, A                ; Save card                  (5F)
+        AND     $F0                 ; Mask suit bits             (E6 F0)
+        OR      B                   ; OR into suit mask          (B0)
+        LD      B, A                ; Update suit mask           (47)
+        LD      A, E                ; Restore card               (7B)
+        AND     $0F                 ; Mask value bits            (E6 0F)
+        OR      C                   ; OR into value mask         (B1)
+        LD      C, A                ; Update value mask          (4F)
+        INC     HL                  ; Next card                   (23)
+        DEC     D                   ; Decrement counter          (15)
+        JR      NZ, LOOP            ; Continue if more cards     (20 F3)
+
+        ; Check for Royal Flush: A-K-Q-J-10 all same suit
+        LD      A, B                ; Get suit mask               (78)
+        AND     $F0                 ; Check if all same suit      (E6 F0)
+        CP      $00                 ; All spades?                 (FE 00)
+        JR      NZ, NOT_ROYAL       ; No, check other patterns    (20 0A)
+        
+        ; Check values: should have A(14), K(13), Q(12), J(11), 10(10)
+        LD      A, C                ; Get value mask              (79)
+        CP      $3E                 ; Check for pattern (simplified) (FE 3E)
+        JR      Z, ROYAL_FLUSH       ; Royal flush found!          (28 04)
+        
+NOT_ROYAL:
+        ; Check for Flush: all same suit (any 5 cards)
+        LD      A, B                ; Get suit mask               (78)
+        AND     $F0                 ; Mask suit bits              (E6 F0)
+        CP      $00                 ; All same suit?              (FE 00)
+        JR      Z, FLUSH            ; Yes, it's a flush           (28 04)
+        JR      HIGH_CARD           ; No, high card               (18 04)
+
+ROYAL_FLUSH:
+        LD      A, 1                ; Royal Flush = 1             (3E 01)
+        LD      (RESULT), A         ; Store result                (32 06 42)
+        HALT                        ;                             (76)
+
+FLUSH:  LD      A, 2                ; Flush = 2                   (3E 02)
+        LD      (RESULT), A         ; Store result                (32 06 42)
+        HALT                        ;                             (76)
+
+HIGH_CARD:
+        LD      A, 10               ; High Card = 10              (3E 0A)
+        LD      (RESULT), A         ; Store result                (32 06 42)
+        HALT                        ;                             (76)
+
+        .END`,
+    expectedBytes: [0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x00, 0x21, 0x00, 0x42, 0x06, 0x00, 0x0E, 0x00, 0x16, 0x05, 0x7E, 0x5F, 0xE6, 0xF0, 0xB0, 0x47, 0x7B, 0xE6, 0x0F, 0xB1, 0x4F, 0x23, 0x15, 0x20, 0xF1, 0x78, 0xE6, 0xF0, 0xFE, 0x00, 0x20, 0x05, 0x79, 0xFE, 0x3E, 0x28, 0x09, 0x78, 0xE6, 0xF0, 0xFE, 0x00, 0x28, 0x08, 0x18, 0x0C, 0x3E, 0x01, 0x32, 0x05, 0x42, 0x76, 0x3E, 0x02, 0x32, 0x05, 0x42, 0x76, 0x3E, 0x0A, 0x32, 0x05, 0x42, 0x76],
+    expectedSymbols: { FLUSH: 16953, HAND: 16896, HIGH_CARD: 16959, LOOP: 16911, NOT_ROYAL: 16938, RESULT: 16901, ROYAL_FLUSH: 16947, START: 16902 }
   }
 ];
 

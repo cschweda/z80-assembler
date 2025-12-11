@@ -44,6 +44,10 @@ const warningsDisplay = document.getElementById('warnings');       // Warning me
 const assembleBtn = document.getElementById('assemble-btn');       // Assemble button
 const exampleSelect = document.getElementById('example-select');   // Example dropdown
 const statusDisplay = document.getElementById('status');           // Status bar
+const charCounter = document.getElementById('char-counter');       // Character counter
+
+// Character limit for source code (8000 chars - enough for complex programs)
+const MAX_SOURCE_LENGTH = 8000;
 
 /**
  * Assembles the current source code and updates the UI with results
@@ -129,6 +133,36 @@ function updateStatus(message, type = 'info') {
 }
 
 /**
+ * Updates the character counter display
+ * 
+ * Shows remaining characters and applies visual styling based on
+ * how close to the limit the user is.
+ * 
+ * @private
+ */
+function updateCharCounter() {
+  const current = sourceEditor.value.length;
+  const remaining = MAX_SOURCE_LENGTH - current;
+  const percent = (current / MAX_SOURCE_LENGTH) * 100;
+  
+  // Update counter text
+  charCounter.textContent = `(${current.toLocaleString()} / ${MAX_SOURCE_LENGTH.toLocaleString()} chars)`;
+  
+  // Update styling based on usage
+  charCounter.className = 'char-counter';
+  if (percent >= 95) {
+    charCounter.classList.add('char-counter-danger');
+  } else if (percent >= 80) {
+    charCounter.classList.add('char-counter-warning');
+  }
+  
+  // Prevent typing beyond limit
+  if (current >= MAX_SOURCE_LENGTH) {
+    sourceEditor.value = sourceEditor.value.substring(0, MAX_SOURCE_LENGTH);
+  }
+}
+
+/**
  * Loads an example program into the source editor
  * 
  * Populates the editor with the example's source code and clears
@@ -149,6 +183,7 @@ function updateStatus(message, type = 'info') {
  */
 function loadExample(example) {
   sourceEditor.value = example.source;
+  updateCharCounter(); // Update counter after loading
   updateStatus(`Loaded: ${example.name}`, 'info');
   
   // Clear previous assembly outputs
@@ -180,6 +215,36 @@ sourceEditor.addEventListener('keydown', (e) => {
   }
 });
 
-// Set initial status message
+// Character counter: update on input
+sourceEditor.addEventListener('input', updateCharCounter);
+
+// Handle paste to truncate if needed
+sourceEditor.addEventListener('paste', (e) => {
+  const paste = (e.clipboardData || window.clipboardData).getData('text');
+  const current = sourceEditor.value;
+  const selectionStart = sourceEditor.selectionStart;
+  const selectionEnd = sourceEditor.selectionEnd;
+  
+  // Calculate new length after paste
+  const newLength = current.length - (selectionEnd - selectionStart) + paste.length;
+  
+  if (newLength > MAX_SOURCE_LENGTH) {
+    e.preventDefault();
+    // Truncate paste to fit
+    const available = MAX_SOURCE_LENGTH - (current.length - (selectionEnd - selectionStart));
+    const truncated = paste.substring(0, available);
+    const newValue = current.substring(0, selectionStart) + truncated + current.substring(selectionEnd);
+    sourceEditor.value = newValue;
+    sourceEditor.setSelectionRange(selectionStart + truncated.length, selectionStart + truncated.length);
+    updateCharCounter();
+    updateStatus(`Paste truncated to fit ${MAX_SOURCE_LENGTH} character limit`, 'info');
+  } else {
+    // Let default paste happen, then update counter
+    setTimeout(updateCharCounter, 0);
+  }
+});
+
+// Set initial status message and character counter
 updateStatus('Ready', 'info');
+updateCharCounter();
 
