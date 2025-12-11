@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRS-80 Model III Z80 Assembler</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TRS-80 Model III Z80 Assembler</h1>
+        </header>
+
+        <div class="toolbar">
+            <select id="example-select">
+                <option value="">Select an example program...</option>
+            </select>
+            <button id="assemble-btn">Assemble</button>
+            <div id="status" class="status status-info">Status: Ready</div>
+        </div>
+
+        <div class="main-content">
+            <div class="panel source-panel">
+                <h2>Source Code</h2>
+                <textarea id="source-editor" placeholder="Enter Z80 assembly source code here..."></textarea>
+            </div>
+
+            <div class="panel output-panel">
+                <h2>Memory Dump</h2>
+                <pre id="output-dump"></pre>
+            </div>
+        </div>
+
+        <div class="secondary-content">
+            <div class="panel symbols-panel">
+                <h2>Symbol Table</h2>
+                <pre id="symbol-table"></pre>
+            </div>
+
+            <div class="panel errors-panel">
+                <h2>Errors / Warnings</h2>
+                <div class="errors-section">
+                    <h3>Errors</h3>
+                    <pre id="errors">No errors.</pre>
+                </div>
+                <div class="warnings-section">
+                    <h3>Warnings</h3>
+                    <pre id="warnings">No warnings.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

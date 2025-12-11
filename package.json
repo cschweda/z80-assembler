@@ -1,0 +1,19 @@
+{
+    "name": "z80-assembler",
+    "version": "1.0.0",
+    "description": "Z80 Assembler for TRS-80 Model III",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "node src/tests/test-suite.js"
+    },
+    "devDependencies": {
+        "vite": "^5.0.0"
+    },
+    "engines": {
+        "node": ">=22.21.1",
+        "yarn": "1.22.22"
+    }
+}
